@@ -72,7 +72,7 @@ fn create_unitlist(r: Range<usize>, c: Range<usize>) -> Vec<Vec<SudokuSquare>> {
 
     for col in 0..max_cols {
         v.push( create_square_vec( Box::new(0..max_rows),
-                                        Box::new(col..=col)));
+                                   Box::new(col..=col)));
     }
 
     let matrices = vec![(0..=2), (3..=5), (6..=8)];
@@ -80,7 +80,7 @@ fn create_unitlist(r: Range<usize>, c: Range<usize>) -> Vec<Vec<SudokuSquare>> {
     for m in 0..matrices.len(){
         for n in 0..matrices.len(){
             v.push(create_square_vec(Box::new(matrices[m].clone()),
-                                                Box::new(matrices[n].clone())));
+                                     Box::new(matrices[n].clone())));
         }
     }
     // Time to return
@@ -91,22 +91,22 @@ fn create_unit_dictionary(unitlist: &Vec<Vec<SudokuSquare>>) -> HashMap<SudokuSq
     let mut unitmap: HashMap<SudokuSquare, SudokuUnit> = HashMap::new();
     for v in unitlist{
         for &ve in v {
-                match unitmap.contains_key(&ve){
-                    true => {
-                        let value = unitmap.get_mut(&ve).unwrap();
-                        value.unitvec.push(&v);
-                    },
-                    false => {
-                        unitmap.insert(ve, SudokuUnit{unitvec: vec![v]});
-                    },
-                }
+            match unitmap.contains_key(&ve){
+                true => {
+                    let value = unitmap.get_mut(&ve).unwrap();
+                    value.unitvec.push(&v);
+                },
+                false => {
+                    unitmap.insert(ve, SudokuUnit{unitvec: vec![v]});
+                },
             }
         }
+    }
     unitmap
 }
 
 fn create_peers_dictionary(unit_dict: &HashMap<SudokuSquare, SudokuUnit>)
-    -> HashMap<SudokuSquare, HashSet<SudokuSquare>> {
+                           -> HashMap<SudokuSquare, HashSet<SudokuSquare>> {
     let mut peers: HashMap<SudokuSquare, HashSet<SudokuSquare>> = HashMap::new();
 
     for unit in unit_dict.iter(){
@@ -153,8 +153,8 @@ struct GameSetup<'a>{
 
 impl GameSetup<'a>{
     fn new(squares: &'a Vec<Vec<SudokuSquare>>,
-            units: &'a HashMap<SudokuSquare, SudokuUnit>,
-            peers: &'a HashMap<SudokuSquare, HashSet<SudokuSquare>>) -> Self {
+           units: &'a HashMap<SudokuSquare, SudokuUnit>,
+           peers: &'a HashMap<SudokuSquare, HashSet<SudokuSquare>>) -> Self {
 
         let mut _sorted = vec![];
         for (k, _v) in units.iter() {
@@ -283,10 +283,10 @@ impl Game<'a> {
                 let candidate = self.stats.get_key_value(&candidate).unwrap();
                 for c in candidate.1.chars(){
                     let mut game_branch = self.clone();
-                        let assign_result = game_branch.assign(candidate.0, c);
-                        if assign_result.is_ok() {
-                            game_branch.search();
-                        }
+                    let assign_result = game_branch.assign(candidate.0, c);
+                    if assign_result.is_ok() {
+                        game_branch.search();
+                    }
                 }
             },
         }
@@ -296,24 +296,24 @@ impl Game<'a> {
 
         let min_candidates = self.stats.iter()
             .fold((0, 9, SudokuSquare(0,0)), |acc, square|
-            {
-                let len = square.1.len();
-                match len {
-                    0 => (acc.0, 0, square.0.clone()),
-                    1 => (acc.0 + 1, acc.1, acc.2),
-                    _ if &len < &acc.1 => (acc.0, *&len, square.0.clone()),
-                    _ => acc,
-                }
-            });
+                {
+                    let len = square.1.len();
+                    match len {
+                        0 => (acc.0, 0, square.0.clone()),
+                        1 => (acc.0 + 1, acc.1, acc.2),
+                        _ if &len < &acc.1 => (acc.0, *&len, square.0.clone()),
+                        _ => acc,
+                    }
+                });
 
         if min_candidates.1 == 0 {
             return Err(SudokuError::NoRemainingValues);
         }
 
-        if min_candidates.0 == self.stats.keys().len() {
-            return Ok((true, min_candidates.2));
+        return if min_candidates.0 == self.stats.keys().len() {
+            Ok((true, min_candidates.2))
         } else {
-            return Ok((false, min_candidates.2));
+            Ok((false, min_candidates.2))
         }
 
     }
@@ -325,7 +325,7 @@ impl Display for Game<'_> {
         let mut output = String::new();
         for square in &self.game_setup.sorted_squares {
             output.push_str(
-            &format!("{number:>width$} ", number=self.stats.get(square).unwrap(), width=6));
+                &format!("{number:>width$} ", number=self.stats.get(square).unwrap(), width=6));
             square_count += 1;
             if square_count % 9 == 0 { output.push('\n'); }
         }
@@ -367,5 +367,4 @@ fn main() {
 
     game.search();
 
-    
 }
